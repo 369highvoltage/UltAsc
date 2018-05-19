@@ -11,7 +11,7 @@ from wpilib import \
     Victor, \
     Compressor, \
     AnalogInput
-from ctre import WPI_TalonSRX, NeutralMode, FeedbackDevice, ControlMode, TalonSRX
+from ctre import WPI_TalonSRX, NeutralMode, FeedbackDevice, ControlMode
 from Events import Events
 
 

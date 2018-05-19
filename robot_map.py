@@ -1,13 +1,10 @@
-from components.ClimbComponent import ClimberComponent
 from components.DriverComponent import DriverComponent
-from components.GripperComponent import GripperComponent
-from components.LifterComponent import LifterComponent
 from components.ShooterComponent import ShooterComponent
 
 class RobotMap:
     left_y = 1
     right_x = 2
-    r_2 = 5
+    r_2 = 4
 
     square = 1
     x = 2

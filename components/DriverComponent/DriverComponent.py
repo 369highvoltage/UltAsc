@@ -13,7 +13,7 @@ from wpilib import \
     AnalogInput, \
     Ultrasonic, \
     PIDController
-from ctre import WPI_TalonSRX, FeedbackDevice, RemoteSensorSource, PigeonIMU, ParamEnum, ControlMode, NeutralMode
+from ctre import WPI_TalonSRX, FeedbackDevice, PigeonIMU, ControlMode, NeutralMode
 from wpilib.drive import DifferentialDrive
 from Command import InstantCommand, Command
 from wpilib.timer import Timer
@@ -22,38 +22,48 @@ import math
 from Events import Events
 from pid_helpers import Gains, PIDOutput, PIDSource
 
-class GearMode:
-    OFF = auto()
-    LOW = auto()
-    HIGH = auto()
-
-
 class DriverComponent(Events):
 
     def __init__(self):
-        self.left_front = Talon()
-        self.left_rear = Talon()
-        self.right_front = Talon()
-        self.right_rear = Talon()
+        self.left_front = Talon(2)
+        self.left_rear = Talon(3)
+        self.right_front = Talon(0)
+        self.right_rear = Talon(1)
         
-        self.gear_solenoid = DoubleSolenoid()
+        self.gear_solenoid = DoubleSolenoid(6, 7)
         
+        self.high_gear_enabled = False
         #self.driver_gyro = ADXRS450_Gyro()
+        
+        self.left_front.setInverted(True)
+        self.left_rear.setInverted(True)
+        self.set_low_gear()
+        #self._create_event(DriverComponent.EVENTS.driving)
+    
+    def filter_deadband(self, value: float):
+        if -0.1 < value < 0.1:
+            return 0
+        else:
+            return value
 
-        self._create_event(DriverComponent.EVENTS.driving)
+    def set_curve_raw(self, linear, angular):
+        pass
 
     def set_curve(self, linear, angular):
-        sf = abs(linear) + abs(angular)
+        l = self.filter_deadband(linear)
+        a = self.filter_deadband(angular)
+        sf = max(1, abs(l) + abs(a))
 
-        self.left_front.set((linear + angular)/sf)
-        self.right_front.set((linear - angular)/sf)
-        self.right_rear.set((linear - angular)/sf)
-        self.left_rear.set((linear + angular)/sf)
+        self.left_front.set((l + a)/sf)
+        self.right_front.set((l - a)/sf)
+        self.right_rear.set((l - a)/sf)
+        self.left_rear.set((l + a)/sf)
 
     def toggle_gear(self):
-        if self.current_gear() is GearMode.LOW:
+        self.high_gear_enabled = not self.high_gear_enabled
+        if self.high_gear_enabled:
             self.set_high_gear()
-        if self.current_gear() is GearMode.HIGH:
+        else:
             self.set_low_gear()
 
     def set_low_gear(self):

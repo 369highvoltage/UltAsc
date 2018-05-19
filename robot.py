@@ -6,11 +6,8 @@ from Command import Command, InstantCommand
 from robot_map import RobotMap
 from components.DriverComponent import DriverComponent
 from components.DriverComponent.DriveCommands import DriveByTime, DriveByDistance, Turn, curve_drive, toggle_gear
-from components.LifterComponent.LifterCommands import move_lifter, MoveUp, MoveDown, move_down_instant, move_up_instant, Reset, MoveToPosition, move_to_position_instant, lock_carriage_move_elevator
-from components.GripperComponent.GripperCommands import move_left_right, toggle_spread, SpitFast, LiftTo, Toggle, close, spread, SuckFast
 from components.ShooterComponent.ShooterCommands import Shoot
 from autonomous.switch_scale import switch_scale, drive_straight
-from components.ClimbComponent.ClimbCommands import climb, stop
 
 
 class UltimateAscent(AsyncRobot):
@@ -45,12 +42,14 @@ class UltimateAscent(AsyncRobot):
             RobotMap.driver_component.toggle_gear()
         
         # Shooting (R2)
-        launch_speed = -self.driver.getRawAxis(RobotMap.r_2)
+        launch_speed = (1.0 + self.driver.getRawAxis(RobotMap.r_2))/2
         RobotMap.shooter_component.shoot(launch_speed)
 
         # X to fire
         if self.driver.getRawButtonPressed(RobotMap.x):
-            self.start_command(Shoot())
+            print(RobotMap.shooter_component.is_busy())
+            if not RobotMap.shooter_component.is_busy():
+                self.start_command(Shoot())
 
         # Circle to toggle height
         if self.driver.getRawButtonPressed(RobotMap.circle):
