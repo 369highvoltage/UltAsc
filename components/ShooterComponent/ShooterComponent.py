@@ -20,6 +20,7 @@ class ShooterComponent:
         self.is_shooting = False
 
         self.retract_launcher()
+        self.raise_lifter()
     
     def is_busy(self):
         return self.is_shooting
@@ -50,10 +51,10 @@ class ShooterComponent:
             self.lower_lifter()
     
     def raise_lifter(self):
-        self.lifter.set(DoubleSolenoid.Value.kForward)
+        self.lifter.set(DoubleSolenoid.Value.kReverse)
     
     def lower_lifter(self):
-        self.lifter.set(DoubleSolenoid.Value.kReverse)
+        self.lifter.set(DoubleSolenoid.Value.kForward)
     
     def shoot(self, speed: float):
         self.lower_shooter.set(speed)
